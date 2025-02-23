@@ -453,11 +453,84 @@ elif page == "銷售分析":
                 )
         
         with tab2:
+            st.subheader("商品分析摘要")
+            
             # 商品銷售分析
             product_sales = sales_df.groupby('商品名稱').agg({
                 '銷量': 'sum',
                 '銷售額': 'sum'
             }).reset_index()
+            
+            # 計算商品分析摘要指標
+            total_products = len(product_sales)
+            total_quantity = product_sales['銷量'].sum()
+            avg_price_per_unit = (product_sales['銷售額'].sum() / product_sales['銷量'].sum())
+            
+            # 顯示商品分析摘要指標
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("商品總數", f"{total_products:,d}")
+            with col2:
+                st.metric("總銷售數量", f"{total_quantity:,d}")
+            with col3:
+                st.metric("平均單價", f"NT$ {avg_price_per_unit:,.0f}")
+            
+            st.markdown("---")
+            
+            # 商品銷售明細和銷量分布
+            col1, col2 = st.columns([3, 2])
+            
+            with col1:
+                st.subheader("商品銷售明細")
+                # 顯示銷售明細表格
+                product_sales_formatted = product_sales.copy()
+                # 計算平均單價
+                product_sales_formatted['平均單價'] = product_sales_formatted['銷售額'] / product_sales_formatted['銷量']
+                # 格式化金額顯示
+                product_sales_formatted['平均單價'] = product_sales_formatted['平均單價'].apply(lambda x: f"NT$ {x:,.0f}")
+                product_sales_formatted['銷售額'] = product_sales_formatted['銷售額'].apply(lambda x: f"NT$ {x:,.0f}")
+                product_sales_formatted = product_sales_formatted.rename(columns={
+                    '商品名稱': '商品名稱',
+                    '銷量': '銷售數量',
+                    '銷售額': '銷售金額',
+                    '平均單價': '平均單價'
+                })
+                st.dataframe(
+                    product_sales_formatted,
+                    column_config={
+                        "商品名稱": st.column_config.TextColumn("商品名稱", width="medium"),
+                        "銷售數量": st.column_config.NumberColumn("銷售數量", format="%d"),
+                        "銷售金額": st.column_config.TextColumn("銷售金額", width="medium"),
+                        "平均單價": st.column_config.TextColumn("平均單價", width="medium")
+                    },
+                    hide_index=True
+                )
+            
+            with col2:
+                st.subheader("商品銷量分布")
+                # 商品銷量分布甜甜圈圖
+                fig = px.pie(product_sales,
+                           values='銷量',
+                           names='商品名稱',
+                           title='',
+                           template='plotly_white',
+                           hole=0.6)  # 設置甜甜圈圖的中心孔洞大小
+                
+                fig.update_traces(
+                    textposition='outside',
+                    textinfo='percent+label',
+                    pull=0.01  # 輕微分離每個區塊
+                )
+                fig.update_layout(
+                    showlegend=False,  # 隱藏圖例
+                    height=400,
+                    margin=dict(t=0, b=0)  # 移除上下邊距
+                )
+                st.plotly_chart(fig, use_container_width=True)
+            
+            st.markdown("---")
+            
+            st.subheader("熱銷商品分析")
             
             # 商品銷售排行
             fig = px.bar(product_sales.sort_values('銷售額', ascending=True).tail(10),
@@ -474,16 +547,7 @@ elif page == "銷售分析":
                 height=400
             )
             st.plotly_chart(fig, use_container_width=True, key="product_ranking")
-            
-            # 商品銷量分布
-            fig = px.pie(product_sales,
-                       values='銷量',
-                       names='商品名稱',
-                       title='商品銷量分布',
-                       template='plotly_white')
-            fig.update_traces(textposition='inside', textinfo='percent+label')
-            st.plotly_chart(fig, use_container_width=True, key="product_distribution")
-        
+
         with tab3:
             # 客戶分析
             st.subheader("客戶消費分析")
