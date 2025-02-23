@@ -155,119 +155,131 @@ elif page == "訂單管理":
             key="location_filter"
         )
     
-    # 訂單列表
-    if st.session_state.orders:
-        # 過濾訂單
-        filtered_orders = []
-        for order in st.session_state.orders:
-            if status_filter and order['狀態'] not in status_filter:
-                continue
-            if location_filter and order['取貨地點'] not in location_filter:
-                continue
-            if not search_term or search_term.lower() in order['訂單號'].lower() or search_term.lower() in order['客戶名稱'].lower():
-                filtered_orders.append(order)
+    # 過濾訂單
+    filtered_orders = []
+    for order in st.session_state.orders:
+        if status_filter and order['狀態'] not in status_filter:
+            continue
+        if location_filter and order['取貨地點'] not in location_filter:
+            continue
+        if not search_term or search_term.lower() in order['訂單號'].lower() or search_term.lower() in order['客戶名稱'].lower():
+            filtered_orders.append(order)
+    
+    if filtered_orders:
+        # 分頁設置
+        items_per_page = 25
+        total_orders = len(filtered_orders)
+        total_pages = (total_orders + items_per_page - 1) // items_per_page
         
-        if filtered_orders:
-            # 導出按鈕
-            export_col1, export_col2 = st.columns([3,1])
-            with export_col1:
-                st.write(f"找到 {len(filtered_orders)} 筆訂單")
-            with export_col2:
-                # 準備導出數據
-                export_data = []
-                for order in filtered_orders:
-                    for item in order['商品']:
-                        export_data.append({
-                            '訂單編號': order['訂單號'],
-                            '日期': order['日期'],
-                            '客戶名稱': order['客戶名稱'],
-                            '電話': order['電話'],
-                            '取貨地點': order['取貨地點'],
-                            '商品名稱': item['商品名稱'],
-                            '數量': item['數量'],
-                            '單價': item['單價'],
-                            '小計': item['小計'],
-                            '狀態': order['狀態']
-                        })
+        # 分頁選擇器（暫存頁碼）
+        if 'page_number' not in st.session_state:
+            st.session_state.page_number = 1
+        
+        # 計算當前頁的訂單範圍
+        start_idx = (st.session_state.page_number - 1) * items_per_page
+        end_idx = min(start_idx + items_per_page, total_orders)
+        current_page_orders = filtered_orders[start_idx:end_idx]
+        
+        # 準備導出數據
+        export_data = []
+        for order in filtered_orders:
+            for item in order['商品']:
+                export_data.append({
+                    '訂單編號': order['訂單號'],
+                    '日期': order['日期'],
+                    '客戶名稱': order['客戶名稱'],
+                    '電話': order['電話'],
+                    '取貨地點': order['取貨地點'],
+                    '商品名稱': item['商品名稱'],
+                    '數量': item['數量'],
+                    '單價': item['單價'],
+                    '小計': item['小計'],
+                    '狀態': order['狀態']
+                })
+        
+        # 創建DataFrame並轉換為Excel格式的bytes
+        df = pd.DataFrame(export_data)
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False)
+        excel_data = output.getvalue()
+        
+        # 導出按鈕（放在側邊欄）
+        st.sidebar.download_button(
+            label="📥 導出訂單",
+            data=excel_data,
+            file_name=f'訂單報表_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        
+        # 顯示當前頁的訂單
+        for order in current_page_orders:
+            # 根據狀態設置顏色
+            status_colors = {
+                "待處理": "🔴",
+                "處理中": "🟡",
+                "已出貨": "🟢",
+                "已完成": "🟢"
+            }
+            status_emoji = status_colors.get(order['狀態'], "⚪")
+            with st.expander(f"{status_emoji} 訂單號：{order['訂單號']} - {order['日期']} - {order['客戶名稱']}"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.write("📦 訂單資訊")
+                    st.write(f"狀態：{status_emoji} {order['狀態']}")
+                    st.write(f"訂購時間：{order['日期']}")
+                    st.write("---")
+                    st.write(f"運費：NT$ {order['運費']}")
+                    st.write(f"總金額：NT$ {order['總金額']}")
                 
-                # 創建DataFrame並轉換為Excel格式的bytes
-                df = pd.DataFrame(export_data)
-                output = BytesIO()
-                with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                    df.to_excel(writer, index=False)
-                excel_data = output.getvalue()
+                with col2:
+                    st.write("👤 客戶與配送資訊")
+                    st.write(f"姓名：{order['客戶名稱']}")
+                    st.write(f"電話：{order['電話']}")
+                    st.write("---")
+                    
+                    if order['取貨方式'] == "宅配到府":
+                        st.write("🚚 宅配到府")
+                        st.write(f"配送地址：{order['地址']}")
+                    else:
+                        st.write("🏪 市場取貨")
+                        st.write(f"取貨地點：{order['取貨地點']}")
                 
-                # 直接提供下載按鈕
-                st.sidebar.download_button(
-                    label="導出訂單",
-                    data=excel_data,
-                    file_name=f'訂單報表_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx',
-                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                st.write("🛒 商品明細")
+                items_df = pd.DataFrame(order['商品'])
+                st.dataframe(items_df, hide_index=True)
+                
+                # 訂單狀態更新
+                new_status = st.selectbox(
+                    "更新訂單狀態",
+                    ["待處理", "處理中", "已出貨", "已完成", "已取消"],
+                    index=["待處理", "處理中", "已出貨", "已完成", "已取消"].index(order['狀態']),
+                    key=f"status_{order['訂單號']}"
                 )
-            
-            # 顯示訂單列表
-            for order in filtered_orders:
-                # 根據狀態設置顏色
-                status_colors = {
-                    "待處理": "🔴",
-                    "處理中": "🟡",
-                    "已出貨": "🟢",
-                    "已完成": "🟢"
-                }
-                status_emoji = status_colors.get(order['狀態'], "⚪")
-                with st.expander(f"{status_emoji} 訂單號：{order['訂單號']} - {order['日期']} - {order['客戶名稱']}"):
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.write("📦 訂單資訊")
-                        status_colors = {
-                            "待處理": "🔴",
-                            "處理中": "🟡",
-                            "已出貨": "🟢",
-                            "已完成": "🟢"
-                        }
-                        status_emoji = status_colors.get(order['狀態'], "⚪")
-                        st.write(f"狀態：{status_emoji} {order['狀態']}")
-                        st.write(f"訂購時間：{order['日期']}")
-                        st.write("---")
-                        
-                        # 運費和總金額資訊
-                        st.write(f"運費：NT$ {order['運費']}")
-                        st.write(f"總金額：NT$ {order['總金額']}")
-                    
-                    with col2:
-                        st.write("👤 客戶與配送資訊")
-                        st.write(f"姓名：{order['客戶名稱']}")
-                        st.write(f"電話：{order['電話']}")
-                        st.write("---")
-                        
-                        # 整理取貨/配送資訊
-                        if order['取貨方式'] == "宅配到府":
-                            st.write("🚚 宅配到府")
-                            st.write(f"配送地址：{order['地址']}")
-                        else:
-                            st.write("🏪 市場取貨")
-                            st.write(f"取貨地點：{order['取貨地點']}")
-                    
-                    st.write("🛒 商品明細")
-                    items_df = pd.DataFrame(order['商品'])
-                    st.dataframe(items_df, hide_index=True)
-                    
-                    # 訂單狀態更新
-                    new_status = st.selectbox(
-                        "更新訂單狀態",
-                        ["待處理", "處理中", "已出貨", "已完成", "已取消"],
-                        index=["待處理", "處理中", "已出貨", "已完成", "已取消"].index(order['狀態']),
-                        key=f"status_{order['訂單號']}"
-                    )
-                    
-                    if new_status != order['狀態']:
-                        order['狀態'] = new_status
-                        save_orders()
-                        st.success("訂單狀態已更新！")
-        else:
-            st.info("沒有找到符合條件的訂單")
+                
+                if new_status != order['狀態']:
+                    order['狀態'] = new_status
+                    save_orders()
+                    st.success("訂單狀態已更新！")
+        
+        # 分頁控制（在所有訂單顯示完後）
+        st.markdown("---")
+
+        # 更新頁碼
+        new_page = st.sidebar.selectbox(
+            "選擇頁數",
+            options=range(1, total_pages + 1),
+            index=st.session_state.page_number - 1,
+            key="page_select"
+        )
+        if new_page != st.session_state.page_number:
+            st.session_state.page_number = new_page
+            st.rerun()
+
+        st.markdown(f"**第 {st.session_state.page_number} 頁，共 {total_pages} 頁**")
+
     else:
-        st.info("目前還沒有任何訂單")
+        st.info("沒有找到符合條件的訂單")
 
 elif page == "銷售分析":
     st.title("銷售分析")
