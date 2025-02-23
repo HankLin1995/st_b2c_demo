@@ -59,11 +59,6 @@ st.sidebar.title("功能選單")
 page = st.sidebar.radio("選擇功能", ["商品管理", "訂單管理", "銷售分析", "備貨清單"])
 st.sidebar.markdown("---")
 
-# # 重新載入數據按鈕
-# if st.sidebar.button("重新載入數據"):
-#     load_data()
-#     st.sidebar.success("數據已重新載入")
-
 # 主要內容
 if page == "商品管理":
     st.title("商品管理")
@@ -287,9 +282,12 @@ elif page == "銷售分析":
     if st.session_state.orders:
         # 準備數據
         sales_data = []
-        location_data = []  
+        customer_data = []
         for order in st.session_state.orders:
             order_date = datetime.strptime(order['日期'], '%Y-%m-%d').date()
+            order_total = sum(item['小計'] for item in order['商品'])
+            
+            # 收集銷售數據
             for item in order['商品']:
                 sales_data.append({
                     '日期': order_date,
@@ -298,15 +296,20 @@ elif page == "銷售分析":
                     '銷售額': item['小計'],
                     '取貨地點': order['取貨地點']
                 })
-                # 收集取貨地點數據
-                location_data.append({
-                    '取貨地點': order['取貨地點'],
-                    '商品名稱': item['商品名稱'],
-                    '數量': item['數量']
-                })
+            
+            # 收集客戶數據
+            customer_data.append({
+                '客戶名稱': order['客戶名稱'],
+                '電話': order['電話'],
+                '訂單日期': order_date,
+                '訂單金額': order_total,
+                '取貨方式': order['取貨方式'],
+                '取貨地點': order.get('取貨地點', ''),
+                '商品數量': len(order['商品'])
+            })
 
         sales_df = pd.DataFrame(sales_data)
-        location_df = pd.DataFrame(location_data)
+        customer_df = pd.DataFrame(customer_data)
         
         # 銷售統計卡片
         st.markdown("""
@@ -349,58 +352,114 @@ elif page == "銷售分析":
         with col3:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-value">NT$ {sales_df['銷售額'].sum() / len(st.session_state.orders):,.0f}</div>
-                <div class="metric-label">平均訂單金額</div>
+                <div class="metric-value">{len(customer_df['客戶名稱'].unique())}</div>
+                <div class="metric-label">不重複客戶數</div>
             </div>
             """, unsafe_allow_html=True)
         with col4:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-value">{sales_df['銷量'].sum():,.0f}</div>
-                <div class="metric-label">總銷售數量 (件)</div>
+                <div class="metric-value">NT$ {customer_df['訂單金額'].mean():,.0f}</div>
+                <div class="metric-label">平均客單價</div>
             </div>
             """, unsafe_allow_html=True)
 
-        # 分析圖表
-        tab1, tab2 = st.tabs(["📈 銷售趨勢", "📊 商品分析"])
+        # 銷售趨勢分析
+        tab1, tab2, tab3 = st.tabs(["📈 銷售趨勢", "📊 商品分析", "👥 客戶分析"])
         
         with tab1:
-            # 銷售趨勢圖
-            daily_sales = sales_df.groupby('日期')['銷售額'].sum().reset_index()
-            daily_sales['日期'] = pd.to_datetime(daily_sales['日期'])
-            daily_sales = daily_sales.sort_values('日期')
+            # 時間範圍選擇
+            date_range = st.selectbox(
+                "選擇時間範圍",
+                ["過去7天", "過去30天", "全部時間"],
+                key="sales_date_range"
+            )
             
+            # 處理日期範圍
+            today = datetime.now().date()
+            if date_range == "過去7天":
+                start_date = today - timedelta(days=7)
+            elif date_range == "過去30天":
+                start_date = today - timedelta(days=30)
+            else:
+                start_date = None
+            
+            # 過濾數據
+            filtered_sales = sales_df.copy()
+            filtered_sales['日期'] = pd.to_datetime(filtered_sales['日期'])
+            if start_date:
+                filtered_sales = filtered_sales[filtered_sales['日期'].dt.date >= start_date]
+            
+            # 計算每日銷售數據
+            daily_sales = filtered_sales.groupby('日期').agg({
+                '銷售額': 'sum',
+                '銷量': 'sum'
+            }).reset_index()
+            
+            # 銷售趨勢圖
             fig = px.line(daily_sales, 
                          x='日期', 
                          y='銷售額',
-                         title='每日銷售趨勢',
+                         title=f'銷售趨勢 ({date_range})',
                          template='plotly_white')
-            fig.update_traces(line_color='#1f77b4', line_width=2)
+            
             fig.update_layout(
                 plot_bgcolor='white',
                 yaxis_title='銷售額 (NT$)',
                 xaxis_title='日期',
                 height=400
             )
-            st.plotly_chart(fig, use_container_width=True, key="daily_sales_trend")
             
-            # 計算成長率
-            if len(daily_sales) > 1:
-                growth_rate = ((daily_sales['銷售額'].iloc[-1] - daily_sales['銷售額'].iloc[0]) / daily_sales['銷售額'].iloc[0]) * 100
-                st.info(f"期間銷售成長率: {growth_rate:.1f}%")
+            fig.update_traces(
+                line_color='#1f77b4',
+                line_width=2,
+                name='銷售額'
+            )
+            
+            st.plotly_chart(fig, use_container_width=True, key="sales_trend")
+            
+            # 銷售統計摘要
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                total_sales = daily_sales['銷售額'].sum()
+                avg_daily_sales = daily_sales['銷售額'].mean()
+                st.metric(
+                    "總銷售額",
+                    f"NT$ {total_sales:,.0f}",
+                    f"日均 NT$ {avg_daily_sales:,.0f}"
+                )
+            
+            with col2:
+                if len(daily_sales) > 1:
+                    growth_rate = ((daily_sales['銷售額'].iloc[-1] - daily_sales['銷售額'].iloc[0]) 
+                                 / daily_sales['銷售額'].iloc[0] * 100)
+                    st.metric(
+                        "銷售成長率",
+                        f"{growth_rate:+.1f}%",
+                        "相比期初"
+                    )
+            
+            with col3:
+                peak_date = daily_sales.loc[daily_sales['銷售額'].idxmax()]
+                st.metric(
+                    "最高單日銷售",
+                    f"NT$ {peak_date['銷售額']:,.0f}",
+                    f"{peak_date['日期'].strftime('%Y-%m-%d')}"
+                )
         
         with tab2:
-            # 熱門商品分析
+            # 商品銷售分析
             product_sales = sales_df.groupby('商品名稱').agg({
                 '銷量': 'sum',
                 '銷售額': 'sum'
             }).reset_index()
             
-            # 熱門商品長條圖
-            fig = px.bar(product_sales.sort_values('銷售額', ascending=True),
+            # 商品銷售排行
+            fig = px.bar(product_sales.sort_values('銷售額', ascending=True).tail(10),
                        x='銷售額',
                        y='商品名稱',
-                       title='商品銷售排行',
+                       title='熱銷商品 TOP 10',
                        orientation='h',
                        template='plotly_white')
             fig.update_traces(marker_color='#2ecc71')
@@ -408,74 +467,109 @@ elif page == "銷售分析":
                 plot_bgcolor='white',
                 xaxis_title='銷售額 (NT$)',
                 yaxis_title='商品名稱',
-                height=600,
-                showlegend=False,
-                title_x=0.5,
-                title_font_size=20
+                height=400
             )
-            fig.update_traces(
-                texttemplate='NT$ %{x:,.0f}',
-                textposition='outside',
-                textfont_size=12
-            )
-            st.plotly_chart(fig, use_container_width=True, key="product_sales_ranking")
+            st.plotly_chart(fig, use_container_width=True, key="product_ranking")
             
+            # 商品銷量分布
+            fig = px.pie(product_sales,
+                       values='銷量',
+                       names='商品名稱',
+                       title='商品銷量分布',
+                       template='plotly_white')
+            fig.update_traces(textposition='inside', textinfo='percent+label')
+            st.plotly_chart(fig, use_container_width=True, key="product_distribution")
+        
+        with tab3:
+            # 客戶分析
+            st.subheader("客戶消費分析")
+            
+            # 計算每個客戶的總消費金額和訂單次數
+            customer_summary = customer_df.groupby('客戶名稱').agg({
+                '訂單金額': ['sum', 'mean', 'count'],
+                '商品數量': 'sum'
+            }).reset_index()
+            customer_summary.columns = ['客戶名稱', '總消費金額', '平均訂單金額', '訂單次數', '購買商品總數']
+            
+            # 客戶消費金額分布
+            fig = px.histogram(customer_summary,
+                             x='總消費金額',
+                             nbins=20,
+                             title='客戶消費金額分布',
+                             template='plotly_white')
+            fig.update_layout(
+                plot_bgcolor='white',
+                xaxis_title='消費金額 (NT$)',
+                yaxis_title='客戶數量'
+            )
+            st.plotly_chart(fig, use_container_width=True, key="customer_spending_dist")
+            
+            # 客戶訂單頻率分析
             col1, col2 = st.columns(2)
             
             with col1:
-                # 銷量分布圓餅圖
-                fig = px.pie(product_sales,
-                           values='銷量',
-                           names='商品名稱',
-                           title='商品銷量分布',
-                           template='plotly_white')
-                fig.update_traces(
-                    textposition='inside',
-                    textinfo='percent+label',
-                    textfont_size=12,
-                    hole=0.4
+                # 重複購買率
+                total_customers = len(customer_summary)
+                repeat_customers = len(customer_summary[customer_summary['訂單次數'] > 1])
+                repeat_rate = (repeat_customers / total_customers) * 100
+                
+                st.metric(
+                    "重複購買率",
+                    f"{repeat_rate:.1f}%",
+                    f"{repeat_customers} 位回購客戶"
                 )
-                fig.update_layout(
-                    height=500,
-                    title_x=0.5,
-                    title_font_size=20,
-                    showlegend=False
+                
+                # 訂單次數分布
+                order_freq = customer_summary['訂單次數'].value_counts().reset_index()
+                order_freq.columns = ['訂購次數', '客戶數量']
+                fig = px.bar(
+                    order_freq,
+                    x='訂購次數',
+                    y='客戶數量',
+                    title='客戶訂購次數分布'
                 )
-                st.plotly_chart(fig, use_container_width=True, key="product_sales_distribution")
+                st.plotly_chart(fig, use_container_width=True, key="order_frequency_dist")
             
             with col2:
-                # 商品銷售明細表
-                st.subheader("商品銷售明細")
-                
-                # 計算銷售占比
-                total_sales = product_sales['銷售額'].sum()
-                product_sales['銷售占比'] = product_sales['銷售額'] / total_sales * 100
-                
-                # 格式化數據
-                product_sales_display = product_sales.copy()
-                product_sales_display['銷售額'] = product_sales_display['銷售額'].apply(lambda x: f'NT$ {x:,.0f}')
-                product_sales_display['銷售占比'] = product_sales_display['銷售占比'].apply(lambda x: f'{x:.1f}%')
-                
-                # 排序並顯示
-                product_sales_display = product_sales_display.sort_values('銷量', ascending=False)
-                st.dataframe(
-                    product_sales_display,
-                    column_config={
-                        "商品名稱": st.column_config.TextColumn("商品名稱", width="medium"),
-                        "銷量": st.column_config.NumberColumn("銷量", format="%d"),
-                        "銷售額": st.column_config.TextColumn("銷售額", width="medium"),
-                        "銷售占比": "銷售占比"
-                    },
-                    hide_index=True,
-                    use_container_width=True
+                # 取貨方式分析
+                delivery_stats = customer_df['取貨方式'].value_counts()
+                fig = px.pie(
+                    values=delivery_stats.values,
+                    names=delivery_stats.index,
+                    title='取貨方式分布'
                 )
-                
-                # 顯示一些重要統計
-                st.markdown("---")
-                st.markdown("### 商品分析摘要")
-                st.markdown(f"- 最暢銷商品：**{product_sales.iloc[0]['商品名稱']}** ({int(product_sales.iloc[0]['銷量'])} 件)")
-                st.markdown(f"- 銷售額最高：**{product_sales.sort_values('銷售額', ascending=False).iloc[0]['商品名稱']}** (NT$ {product_sales.sort_values('銷售額', ascending=False).iloc[0]['銷售額']:,.0f})")
-                st.markdown(f"- 平均單品銷量：**{product_sales['銷量'].mean():.1f}** 件")
+                st.plotly_chart(fig, use_container_width=True, key="delivery_method_dist")
+            
+            # 客戶排行榜
+            st.subheader("高價值客戶 TOP 10")
+            top_customers = customer_summary.nlargest(10, '總消費金額')
+            st.dataframe(
+                top_customers,
+                column_config={
+                    "客戶名稱": "客戶名稱",
+                    "總消費金額": st.column_config.NumberColumn(
+                        "總消費金額",
+                        format="NT$ %d"
+                    ),
+                    "平均訂單金額": st.column_config.NumberColumn(
+                        "平均訂單金額",
+                        format="NT$ %d"
+                    ),
+                    "訂單次數": "訂單次數",
+                    "購買商品總數": "購買商品總數"
+                },
+                hide_index=True,
+                use_container_width=True
+            )
+            
+            # 客戶行為摘要
+            st.markdown("### 客戶行為摘要")
+            st.markdown(f"""
+            - 平均客單價：**NT$ {customer_df['訂單金額'].mean():,.0f}**
+            - 客戶平均訂購次數：**{customer_summary['訂單次數'].mean():.1f}** 次
+            - 最高客戶消費金額：**NT$ {customer_summary['總消費金額'].max():,.0f}**
+            - 最常購買客戶：**{customer_summary.loc[customer_summary['訂單次數'].idxmax(), '客戶名稱']}** ({customer_summary['訂單次數'].max()} 次)
+            """)
     else:
         st.info("目前還沒有任何訂單數據")
 
