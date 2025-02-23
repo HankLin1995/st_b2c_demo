@@ -1,0 +1,22 @@
+services:
+  app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: streamlit-app
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./frontend:/app
+    command: streamlit run app.py
+
+  admin:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: streamlit-admin
+    ports:
+      - "8502:8501"
+    volumes:
+      - ./frontend:/app
+    command: streamlit run admin.py

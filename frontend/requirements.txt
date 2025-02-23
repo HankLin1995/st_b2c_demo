@@ -1,0 +1,8 @@
+streamlit
+streamlit-card
+requests
+Pillow
+pandas
+plotly
+numpy
+openpyxl
