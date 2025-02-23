@@ -5,7 +5,7 @@ import plotly.express as px
 from datetime import datetime, timedelta
 import numpy as np
 import os
-import io
+from io import BytesIO
 
 # 設置頁面配置
 st.set_page_config(
@@ -192,7 +192,7 @@ elif page == "訂單管理":
                 
                 # 創建DataFrame並轉換為Excel格式的bytes
                 df = pd.DataFrame(export_data)
-                output = io.BytesIO()
+                output = BytesIO()
                 with pd.ExcelWriter(output, engine='openpyxl') as writer:
                     df.to_excel(writer, index=False)
                 excel_data = output.getvalue()
@@ -474,44 +474,185 @@ elif page == "備貨清單":
         # 將空的取貨地點改為"宅配到府"
         df['取貨地點'] = df['取貨地點'].replace('', '宅配到府')
         
-        # 計算每個取貨地點的訂單數量
-        location_orders = df.groupby('取貨地點').agg({
-            '訂單號': 'count',
-            '客戶名稱': lambda x: ', '.join(set(x))  # 收集不重複的客戶名稱
-        }).reset_index()
-        location_orders.columns = ['取貨地點', '訂單數量', '客戶']
+        # 轉換日期列為datetime類型
+        df['日期'] = pd.to_datetime(df['日期'])
         
-        # 顯示每個取貨地點的訂單統計
-        st.subheader("📊 各取貨地點訂單統計")
-        st.dataframe(location_orders)
+        # 讀取訂單資料
+        df = pd.read_json('data/orders.json')
+        df['日期'] = pd.to_datetime(df['日期'])
         
-        # 分析每個取貨地點需要準備的商品
-        st.subheader("📦 各取貨地點商品需求")
+        # 獲取所有有訂單的日期並格式化為字串
+        available_dates = df['日期'].dt.date.unique()
+        available_dates = sorted(available_dates, reverse=True)  # 降序排列，最新的日期在最前面
+        date_options = [date.strftime('%Y-%m-%d') for date in available_dates]
         
-        # 展開商品欄位並計算每個取貨地點的商品需求
-        products_by_location = {}
-        for _, row in df.iterrows():
-            location = row['取貨地點']
-            if location not in products_by_location:
-                products_by_location[location] = {}
+        # 讓使用者從下拉選單選擇日期
+        selected_date_str = st.sidebar.selectbox(
+            "選擇日期",
+            options=date_options,
+            index=0
+        )
+        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        
+        # 篩選選定日期的訂單
+        daily_orders = df[df['日期'].dt.date == selected_date]
+        
+        if len(daily_orders) > 0:
+            # st.subheader(f"📅 {selected_date} 備貨清單")
             
-            for item in row['商品']:
-                product_name = item['商品名稱']
-                quantity = item['數量']
-                if product_name not in products_by_location[location]:
-                    products_by_location[location][product_name] = 0
-                products_by_location[location][product_name] += quantity
-        
-        # 轉換成DataFrame並顯示
-        location_products = []
-        for location, products in products_by_location.items():
-            product_str = '\n'.join([f"{name}: {qty}件" for name, qty in products.items()])
-            location_products.append({
-                '取貨地點': location,
-                '需準備商品': product_str
-            })
-        
-        location_products_df = pd.DataFrame(location_products)
-        st.dataframe(location_products_df, use_container_width=True)
+            # 篩選非宅配到府的訂單
+            pickup_orders = daily_orders[daily_orders['取貨方式'] == '市場取貨']
+            
+            if len(pickup_orders) > 0:
+                # 計算當日總備貨需求
+                total_products_demand = {}
+                for _, order in pickup_orders.iterrows():
+                    for item in order['商品']:
+                        product_name = item['商品名稱']
+                        quantity = item['數量']
+                        if product_name not in total_products_demand:
+                            total_products_demand[product_name] = 0
+                        total_products_demand[product_name] += quantity
+                
+                # 轉換成DataFrame格式
+                total_demand_df = pd.DataFrame([
+                    {'商品名稱': product, '總數量': quantity}
+                    for product, quantity in total_products_demand.items()
+                ])
+                total_demand_df = total_demand_df.sort_values('總數量', ascending=False)
+                
+                # 在側邊欄顯示當日總備貨需求
+                st.sidebar.markdown("### 📦 總備貨需求")
+                st.sidebar.dataframe(
+                    total_demand_df,
+                    hide_index=True,
+                    use_container_width=True
+                )
+                
+                st.sidebar.markdown("---")
+                
+                # 按取貨地點分組顯示
+                for location in pickup_orders['取貨地點'].unique():
+                    location_orders = pickup_orders[pickup_orders['取貨地點'] == location]
+                    
+                    # 顯示取貨地點標題
+                    st.markdown(f"## 📍 {location}")
+                    
+                    # 使用列來排列客戶訂單卡片
+                    st.markdown("""
+                    <style>
+                    .customer-card {
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        padding: 15px;
+                        margin: 10px 0;
+                        background-color: #f8f9fa;
+                    }
+                    .customer-info {
+                        margin-bottom: 10px;
+                    }
+                    .customer-info h4 {
+                        margin: 0;
+                        color: #1f77b4;
+                    }
+                    .customer-info p {
+                        margin: 5px 0;
+                        color: #666;
+                    }
+                    .order-items {
+                        margin-top: 10px;
+                        padding-top: 10px;
+                        border-top: 1px solid #eee;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+
+                    # 使用 columns 布局
+                    col1, col2, col3 = st.columns(3)
+                    for idx, (_, order) in enumerate(location_orders.iterrows()):
+                        # 根據索引決定顯示在哪一欄
+                        with (col1 if idx % 3 == 0 else col2 if idx % 3 == 1 else col3):
+                            st.markdown(f"""
+                            <div class="customer-card">
+                                <div class="customer-info">
+                                    <h4>🧑‍💼 {order['客戶名稱']}</h4>
+                                    <p>📝 訂單號：{order['訂單號']}</p>
+                                    <p>📞 電話：{order['電話']}</p>
+                                </div>
+                                <div class="order-items">
+                                    <p><strong>訂購商品：</strong></p>
+                                    <ul style="list-style-type: none; padding-left: 0; margin: 5px 0;">
+                                        {"".join(f'<li>• {item["商品名稱"]} × <strong>{item["數量"]}</strong></li>' for item in order['商品'])}
+                                    </ul>
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    
+                    st.markdown("---")
+                
+                # 匯出功能
+                st.markdown("### 📤 匯出備貨單")
+                
+                if st.button("下載備貨單"):
+                    # 創建一個 Excel 寫入器
+                    output = BytesIO()
+                    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                        # 首先寫入總備貨需求
+                        total_demand_df.to_excel(writer, sheet_name='總備貨需求', index=False)
+                        
+                        # 為每個取貨地點創建工作表
+                        for location in pickup_orders['取貨地點'].unique():
+                            location_orders = pickup_orders[pickup_orders['取貨地點'] == location]
+                            
+                            # 計算該地點的商品總量
+                            location_products = {}
+                            for _, order in location_orders.iterrows():
+                                for item in order['商品']:
+                                    product_name = item['商品名稱']
+                                    quantity = item['數量']
+                                    if product_name not in location_products:
+                                        location_products[product_name] = 0
+                                    location_products[product_name] += quantity
+                            
+                            # 創建商品總量DataFrame
+                            products_df = pd.DataFrame([
+                                {'商品名稱': product, '總數量': quantity}
+                                for product, quantity in location_products.items()
+                            ])
+                            products_df = products_df.sort_values('總數量', ascending=False)
+                            
+                            # 創建訂單明細DataFrame
+                            orders_data = []
+                            for _, order in location_orders.iterrows():
+                                for item in order['商品']:
+                                    orders_data.append({
+                                        '客戶名稱': order['客戶名稱'],
+                                        '訂單號': order['訂單號'],
+                                        '電話': order['電話'],
+                                        '商品名稱': item['商品名稱'],
+                                        '數量': item['數量']
+                                    })
+                            orders_df = pd.DataFrame(orders_data)
+                            
+                            # 寫入Excel
+                            products_df.to_excel(writer, 
+                                              sheet_name=f'{location}-商品總量',
+                                              index=False)
+                            orders_df.to_excel(writer,
+                                            sheet_name=f'{location}-訂單明細',
+                                            index=False)
+                    
+                    # 設定下載按鈕
+                    output.seek(0)
+                    st.download_button(
+                        label="📥 下載 Excel 檔案",
+                        data=output,
+                        file_name=f'備貨單_{selected_date}.xlsx',
+                        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    )
+            else:
+                st.info(f"{selected_date} 沒有市場取貨的訂單")
+        else:
+            st.info("目前還沒有任何訂單數據")
     else:
         st.info("目前還沒有任何訂單數據")
