@@ -5,6 +5,7 @@ import plotly.express as px
 from datetime import datetime, timedelta
 import numpy as np
 import os
+import io
 
 # 設置頁面配置
 st.set_page_config(
@@ -55,7 +56,7 @@ def save_orders():
 
 # 側邊欄
 st.sidebar.title("功能選單")
-page = st.sidebar.radio("選擇功能", ["商品管理", "訂單管理", "銷售分析"])
+page = st.sidebar.radio("選擇功能", ["商品管理", "訂單管理", "銷售分析", "備貨清單"])
 st.sidebar.markdown("---")
 
 # # 重新載入數據按鈕
@@ -135,20 +136,23 @@ elif page == "訂單管理":
     st.title("訂單管理")
     
     # 搜索和篩選
-    search_col1, search_col2, search_col3 = st.columns([2,2,1])
+    search_col1, search_col2, search_col3= st.columns([2,2,2])
     with search_col1:
-        search_term = st.text_input("搜索訂單", placeholder="輸入訂單號或客戶名稱")
+        search_term = st.text_input("搜尋訂單", key="order_search")
     with search_col2:
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=30)
-        date_range = st.date_input(
-            "選擇日期範圍",
-            value=(start_date, end_date)
+        status_filter = st.multiselect(
+            "訂單狀態",
+            ["待處理", "處理中", "已完成", "已取消"],
+            default=[],
+            key="status_filter"
         )
     with search_col3:
-        export_format = st.selectbox(
-            "導出格式",
-            ["Excel", "CSV"]
+        pickup_locations = list(set(order['取貨地點'] for order in st.session_state.orders))
+        location_filter = st.multiselect(
+            "取貨地點",
+            pickup_locations,
+            default=[],
+            key="location_filter"
         )
     
     # 訂單列表
@@ -156,12 +160,12 @@ elif page == "訂單管理":
         # 過濾訂單
         filtered_orders = []
         for order in st.session_state.orders:
-            order_date = datetime.strptime(order['日期'], '%Y-%m-%d').date()
-            if date_range[0] <= order_date <= date_range[1]:
-                if not search_term or \
-                   search_term.lower() in order['訂單號'].lower() or \
-                   search_term.lower() in order['客戶名稱'].lower():
-                    filtered_orders.append(order)
+            if status_filter and order['狀態'] not in status_filter:
+                continue
+            if location_filter and order['取貨地點'] not in location_filter:
+                continue
+            if not search_term or search_term.lower() in order['訂單號'].lower() or search_term.lower() in order['客戶名稱'].lower():
+                filtered_orders.append(order)
         
         if filtered_orders:
             # 導出按鈕
@@ -169,49 +173,37 @@ elif page == "訂單管理":
             with export_col1:
                 st.write(f"找到 {len(filtered_orders)} 筆訂單")
             with export_col2:
-                if st.sidebar.button("導出訂單"):
-                    # 準備導出數據
-                    export_data = []
-                    for order in filtered_orders:
-                        # 展開訂單中的商品
-                        for item in order['商品']:
-                            export_data.append({
-                                '訂單號': order['訂單號'],
-                                '訂購日期': order['日期'],
-                                '訂單狀態': order['狀態'],
-                                '客戶姓名': order['客戶名稱'],
-                                '聯絡電話': order['電話'],
-                                '取貨方式': order['取貨方式'],
-                                '配送地址': order['地址'] if order['取貨方式'] == "宅配到府" else "",
-                                '取貨地點': order['取貨地點'] if order['取貨方式'] == "超商取貨" else "",
-                                '商品名稱': item['商品名稱'],
-                                '單價': item['單價'],
-                                '數量': item['數量'],
-                                '小計': item['小計'],
-                                '運費': order['運費'],
-                                '訂單總額': order['總金額']
-                            })
-                    
-                    # 創建 DataFrame
-                    df = pd.DataFrame(export_data)
-                    
-                    # 生成檔案名稱
-                    current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
-                    if export_format == "Excel":
-                        filename = f'orders_export_{current_time}.xlsx'
-                        df.to_excel(f'data/{filename}', index=False, engine='openpyxl')
-                    else:  # CSV
-                        filename = f'orders_export_{current_time}.csv'
-                        df.to_csv(f'data/{filename}', index=False, encoding='utf-8-sig')
-                    
-                    # 提供下載連結
-                    with open(f'data/{filename}', 'rb') as f:
-                        st.download_button(
-                            label="下載訂單報表",
-                            data=f,
-                            file_name=filename,
-                            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' if export_format == "Excel" else 'text/csv'
-                        )
+                # 準備導出數據
+                export_data = []
+                for order in filtered_orders:
+                    for item in order['商品']:
+                        export_data.append({
+                            '訂單編號': order['訂單號'],
+                            '日期': order['日期'],
+                            '客戶名稱': order['客戶名稱'],
+                            '電話': order['電話'],
+                            '取貨地點': order['取貨地點'],
+                            '商品名稱': item['商品名稱'],
+                            '數量': item['數量'],
+                            '單價': item['單價'],
+                            '小計': item['小計'],
+                            '狀態': order['狀態']
+                        })
+                
+                # 創建DataFrame並轉換為Excel格式的bytes
+                df = pd.DataFrame(export_data)
+                output = io.BytesIO()
+                with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                    df.to_excel(writer, index=False)
+                excel_data = output.getvalue()
+                
+                # 直接提供下載按鈕
+                st.sidebar.download_button(
+                    label="導出訂單",
+                    data=excel_data,
+                    file_name=f'訂單報表_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx',
+                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                )
             
             # 顯示訂單列表
             for order in filtered_orders:
@@ -283,16 +275,26 @@ elif page == "銷售分析":
     if st.session_state.orders:
         # 準備數據
         sales_data = []
+        location_data = []  
         for order in st.session_state.orders:
+            order_date = datetime.strptime(order['日期'], '%Y-%m-%d').date()
             for item in order['商品']:
                 sales_data.append({
-                    '日期': order['日期'],
+                    '日期': order_date,
                     '商品名稱': item['商品名稱'],
                     '銷量': item['數量'],
-                    '銷售額': item['小計']
+                    '銷售額': item['小計'],
+                    '取貨地點': order['取貨地點']
                 })
-        
+                # 收集取貨地點數據
+                location_data.append({
+                    '取貨地點': order['取貨地點'],
+                    '商品名稱': item['商品名稱'],
+                    '數量': item['數量']
+                })
+
         sales_df = pd.DataFrame(sales_data)
+        location_df = pd.DataFrame(location_data)
         
         # 銷售統計卡片
         st.markdown("""
@@ -368,7 +370,7 @@ elif page == "銷售分析":
                 xaxis_title='日期',
                 height=400
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="daily_sales_trend")
             
             # 計算成長率
             if len(daily_sales) > 1:
@@ -399,13 +401,12 @@ elif page == "銷售分析":
                 title_x=0.5,
                 title_font_size=20
             )
-            # 在長條圖右側添加銷售額標籤
             fig.update_traces(
                 texttemplate='NT$ %{x:,.0f}',
                 textposition='outside',
                 textfont_size=12
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="product_sales_ranking")
             
             col1, col2 = st.columns(2)
             
@@ -428,7 +429,7 @@ elif page == "銷售分析":
                     title_font_size=20,
                     showlegend=False
                 )
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True, key="product_sales_distribution")
             
             with col2:
                 # 商品銷售明細表
@@ -463,5 +464,54 @@ elif page == "銷售分析":
                 st.markdown(f"- 最暢銷商品：**{product_sales.iloc[0]['商品名稱']}** ({int(product_sales.iloc[0]['銷量'])} 件)")
                 st.markdown(f"- 銷售額最高：**{product_sales.sort_values('銷售額', ascending=False).iloc[0]['商品名稱']}** (NT$ {product_sales.sort_values('銷售額', ascending=False).iloc[0]['銷售額']:,.0f})")
                 st.markdown(f"- 平均單品銷量：**{product_sales['銷量'].mean():.1f}** 件")
+    else:
+        st.info("目前還沒有任何訂單數據")
+
+elif page == "備貨清單":
+    if 'orders' in st.session_state and len(st.session_state.orders) > 0:
+        df = pd.DataFrame(st.session_state.orders)
+        
+        # 將空的取貨地點改為"宅配到府"
+        df['取貨地點'] = df['取貨地點'].replace('', '宅配到府')
+        
+        # 計算每個取貨地點的訂單數量
+        location_orders = df.groupby('取貨地點').agg({
+            '訂單號': 'count',
+            '客戶名稱': lambda x: ', '.join(set(x))  # 收集不重複的客戶名稱
+        }).reset_index()
+        location_orders.columns = ['取貨地點', '訂單數量', '客戶']
+        
+        # 顯示每個取貨地點的訂單統計
+        st.subheader("📊 各取貨地點訂單統計")
+        st.dataframe(location_orders)
+        
+        # 分析每個取貨地點需要準備的商品
+        st.subheader("📦 各取貨地點商品需求")
+        
+        # 展開商品欄位並計算每個取貨地點的商品需求
+        products_by_location = {}
+        for _, row in df.iterrows():
+            location = row['取貨地點']
+            if location not in products_by_location:
+                products_by_location[location] = {}
+            
+            for item in row['商品']:
+                product_name = item['商品名稱']
+                quantity = item['數量']
+                if product_name not in products_by_location[location]:
+                    products_by_location[location][product_name] = 0
+                products_by_location[location][product_name] += quantity
+        
+        # 轉換成DataFrame並顯示
+        location_products = []
+        for location, products in products_by_location.items():
+            product_str = '\n'.join([f"{name}: {qty}件" for name, qty in products.items()])
+            location_products.append({
+                '取貨地點': location,
+                '需準備商品': product_str
+            })
+        
+        location_products_df = pd.DataFrame(location_products)
+        st.dataframe(location_products_df, use_container_width=True)
     else:
         st.info("目前還沒有任何訂單數據")

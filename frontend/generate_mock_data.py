@@ -105,7 +105,7 @@ addresses = [
 
 # 生成訂單
 orders = []
-for i in range(20):
+for i in range(60):
     # 隨機選擇取貨方式
     delivery_method = random.choice(["宅配到府", "市場取貨"])
     
