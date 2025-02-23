@@ -19,9 +19,13 @@ os.makedirs('data', exist_ok=True)
 
 # 載入數據函數
 def load_data():
+    # 獲取當前文件的目錄
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(base_dir, 'data')
+
     # 載入商品數據
     try:
-        with open('data/products.json', 'r', encoding='utf-8') as f:
+        with open(os.path.join(data_dir, 'products.json'), 'r', encoding='utf-8') as f:
             products = json.load(f)
             st.session_state.products = products
             print(f"成功載入 {len(products)} 個商品")
@@ -31,7 +35,7 @@ def load_data():
 
     # 載入訂單數據
     try:
-        with open('data/orders.json', 'r', encoding='utf-8') as f:
+        with open(os.path.join(data_dir, 'orders.json'), 'r', encoding='utf-8') as f:
             orders = json.load(f)
             st.session_state.orders = orders
             print(f"成功載入 {len(orders)} 個訂單")
