@@ -9,8 +9,10 @@ st.set_page_config(page_title="購物車清單", layout="wide")
 # 初始化數據庫
 def init_db():
     # 確保數據目錄存在
-    os.makedirs('/app/data', exist_ok=True)
-    conn = sqlite3.connect('/app/data/shopping_cart.db')
+    data_dir = os.path.join('app', 'data')
+    os.makedirs(data_dir, exist_ok=True)
+    db_path = os.path.join(data_dir, 'shopping_cart.db')
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute('''
         CREATE TABLE IF NOT EXISTS cart
@@ -24,7 +26,8 @@ def init_db():
 
 # 添加商品到購物車
 def add_to_cart(product):
-    conn = sqlite3.connect('/app/data/shopping_cart.db')
+    db_path = os.path.join('app', 'data', 'shopping_cart.db')
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
     
     try:
@@ -54,7 +57,8 @@ def add_to_cart(product):
 
 # 從購物車中刪除商品
 def remove_from_cart(product_id):
-    conn = sqlite3.connect('/app/data/shopping_cart.db')
+    db_path = os.path.join('app', 'data', 'shopping_cart.db')
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
     try:
         c.execute('DELETE FROM cart WHERE product_id = ?', (product_id,))
@@ -68,7 +72,8 @@ def remove_from_cart(product_id):
 
 # 清空購物車
 def clear_cart():
-    conn = sqlite3.connect('/app/data/shopping_cart.db')
+    db_path = os.path.join('app', 'data', 'shopping_cart.db')
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
     try:
         c.execute('DELETE FROM cart')
@@ -82,7 +87,8 @@ def clear_cart():
 
 # 獲取購物車內容
 def get_cart_items():
-    conn = sqlite3.connect('/app/data/shopping_cart.db')
+    db_path = os.path.join('app', 'data', 'shopping_cart.db')
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
     try:
         c.execute('SELECT product_id, name, price, quantity FROM cart')
