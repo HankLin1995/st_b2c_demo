@@ -652,7 +652,7 @@ elif page == "備貨清單":
         df['日期'] = pd.to_datetime(df['日期'])
         
         # 讀取訂單資料
-        df = pd.read_json('data/orders.json')
+        df = pd.read_json(os.path.join('data', 'orders.json'))
         df['日期'] = pd.to_datetime(df['日期'])
         
         # 獲取所有有訂單的日期並格式化為字串
