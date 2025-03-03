@@ -1,178 +1,14 @@
-// 產品資料
-const products = [
-    {
-        "id": 1,
-        "name": "紐西蘭牛排",
-        "price": 499,
-        "originalPrice": 599,
-        "onSale": true,
-        "image": "https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "紐西蘭頂級草飼牛排",
-        "category": "meat"
-    },
-    {
-        "id": 2,
-        "name": "松阪豬",
-        "price": 359,
-        "image": "https://images.unsplash.com/photo-1602470520998-f4a52199a3d6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "日本進口松阪豬，油花均勻",
-        "category": "meat"
-    },
-    {
-        "id": 3,
-        "name": "去骨雞腿",
-        "price": 189,
-        "image": "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "新鮮去骨雞腿，真空包裝",
-        "category": "meat"
-    },
-    {
-        "id": 4,
-        "name": "急凍生蝦",
-        "price": 399,
-        "image": "https://images.unsplash.com/photo-1623855244183-52fd8d3ce2f7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "嚴選深海大蝦，急速冷凍保鮮",
-        "category": "shrimp"
-    },
-    {
-        "id": 5,
-        "name": "鮭魚片",
-        "price": 299,
-        "image": "https://images.unsplash.com/photo-1485921325833-c519f76c4927?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "挪威進口鮭魚，真空包裝",
-        "category": "fish"
-    },
-    {
-        "id": 6,
-        "name": "花枝片",
-        "price": 259,
-        "image": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "新鮮花枝，切片即食",
-        "category": "fish"
-    },
-    {
-        "id": 7,
-        "name": "鱈魚排",
-        "price": 329,
-        "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "深海鱈魚，肉質鮮嫩",
-        "category": "fish"
-    },
-    {
-        "id": 8,
-        "name": "生蠔",
-        "price": 499,
-        "originalPrice": 599,
-        "onSale": true,
-        "image": "https://images.unsplash.com/photo-1498579687545-d5a4fffb0a9e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "新鮮生蠔，海洋的滋味",
-        "category": "shellfish"
-    },
-    {
-        "id": 9,
-        "name": "扇貝",
-        "price": 459,
-        "image": "https://images.unsplash.com/photo-1569494315581-13efc7e67d1e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "北海道扇貝，肉質飽滿",
-        "category": "shellfish"
-    },
-    {
-        "id": 10,
-        "name": "白蝦",
-        "price": 359,
-        "image": "https://images.unsplash.com/photo-1559737558-2f5a35f4523b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "台灣白蝦，鮮甜可口",
-        "category": "shrimp"
-    },
-    {
-        "id": 11,
-        "name": "龍蝦",
-        "price": 1299,
-        "originalPrice": 1499,
-        "onSale": true,
-        "image": "https://images.unsplash.com/photo-1550747545-c896b5f89ff7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "波士頓龍蝦，肉質鮮美",
-        "category": "shrimp"
-    },
-    {
-        "id": 12,
-        "name": "帝王蟹",
-        "price": 1599,
-        "image": "https://images.unsplash.com/photo-1559737706-1f3b1d657d3c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "阿拉斯加帝王蟹，鮮甜多汁",
-        "category": "shellfish"
-    },
-    {
-        "id": 13,
-        "name": "鮪魚排",
-        "price": 399,
-        "image": "https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "新鮮鮪魚排，適合煎烤",
-        "category": "fish"
-    },
-    {
-        "id": 14,
-        "name": "鱸魚",
-        "price": 289,
-        "image": "https://images.unsplash.com/photo-1534177616072-ef7dc120449d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "台灣鱸魚，肉質細嫩",
-        "category": "fish"
-    },
-    {
-        "id": 15,
-        "name": "草蝦",
-        "price": 429,
-        "image": "https://images.unsplash.com/photo-1565280654386-36c3c0e9a7ee?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "台灣草蝦，個頭大肉質鮮",
-        "category": "shrimp"
-    },
-    {
-        "id": 16,
-        "name": "澳洲和牛",
-        "price": 899,
-        "image": "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "澳洲和牛，油花分佈均勻",
-        "category": "meat"
-    },
-    {
-        "id": 17,
-        "name": "小卷",
-        "price": 279,
-        "image": "https://images.unsplash.com/photo-1565980928367-a794bbd94784?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "新鮮小卷，Q彈有嚼勁",
-        "category": "fish"
-    },
-    {
-        "id": 18,
-        "name": "蛤蜊",
-        "price": 199,
-        "image": "https://images.unsplash.com/photo-1466553556096-7e2c4ca157cc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "台灣蛤蜊，肉質飽滿",
-        "category": "shellfish"
-    },
-    {
-        "id": 19,
-        "name": "羊排",
-        "price": 599,
-        "image": "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "紐西蘭羊排，肉質鮮嫩",
-        "category": "meat"
-    },
-    {
-        "id": 20,
-        "name": "鱈場蟹",
-        "price": 1099,
-        "image": "https://images.unsplash.com/photo-1560717845-968823efbee1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-        "description": "阿拉斯加鱈場蟹，肉質鮮美",
-        "category": "shellfish"
-    }
-];
+// 在文件顶部添加导入语句
+import { getProducts, getProductsByCategory, submitOrder } from './api.js';
 
 // 購物車資料
 let cart = [];
 
 // 當前選中的分類
 let currentCategory = 'all';
+
+// 產品資料 - 移除硬编码数据，改为从API获取
+let products = [];
 
 // DOM 元素
 let productContainer;
@@ -185,7 +21,7 @@ let tabButtons;
 let floatingCartCount;
 
 // 頁面載入時執行
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // 獲取DOM元素
     productContainer = document.getElementById('product-container');
     cartContainer = document.getElementById('cart-container');
@@ -199,9 +35,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // 從本地存儲加載購物車
     loadCart();
     
-    // 初始化頁面
-    renderProducts();
+    // 更新購物車顯示
     updateCartDisplay();
+    
+    // 顯示加載狀態
+    productContainer.innerHTML = '<div class="loading">正在加載產品...</div>';
+    
+    try {
+        // 從API獲取產品資料
+        products = await getProducts();
+        
+        // 渲染產品
+        renderProducts();
+    } catch (error) {
+        console.error('加載產品失敗:', error);
+        productContainer.innerHTML = '<div class="error">加載產品失敗，請刷新頁面重試</div>';
+        showToast('加載產品失敗，請檢查網絡連接');
+    }
     
     // 添加清空購物車按鈕事件
     const clearCartBtn = document.getElementById('clear-cart-btn');
@@ -209,37 +59,36 @@ document.addEventListener('DOMContentLoaded', function() {
         clearCartBtn.addEventListener('click', clearCart);
     }
     
-    // 添加分類標籤事件
+    // 添加分類標籤點擊事件
     tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const category = this.getAttribute('data-category');
-            filterProductsByCategory(category);
-            
-            // 更新活動標籤
+        button.addEventListener('click', async function() {
+            // 移除所有標籤的活動狀態
             tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // 設置當前標籤為活動狀態
             this.classList.add('active');
+            
+            // 獲取分類值
+            currentCategory = this.getAttribute('data-category');
+            
+            try {
+                // 使用API获取分类产品
+                if (currentCategory === 'all') {
+                    products = await getProducts();
+                } else {
+                    products = await getProductsByCategory(currentCategory);
+                }
+                
+                // 渲染產品
+                renderProducts();
+            } catch (error) {
+                console.error('获取分类产品失败:', error);
+                // 显示错误提示
+                showToast('获取产品数据失败，请稍后再试');
+            }
         });
     });
 });
-
-// 初始化分類標籤
-function initTabs() {
-    tabButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            // 移除所有標籤的active類
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // 添加當前標籤的active類
-            this.classList.add('active');
-            
-            // 更新當前分類
-            currentCategory = this.getAttribute('data-category');
-            
-            // 重新渲染產品列表
-            renderProducts();
-        });
-    });
-}
 
 // 渲染產品列表
 function renderProducts() {

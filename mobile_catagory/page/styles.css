@@ -251,6 +251,23 @@ hr {
     animation: fadein 0.5s, fadeout 0.5s 2.5s;
 }
 
+/* 加載和錯誤提示樣式 */
+.loading, .error {
+    text-align: center;
+    padding: 30px;
+    width: 100%;
+    color: #666;
+    font-size: 1.2rem;
+}
+
+.error {
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+    border-radius: 5px;
+    background-color: rgba(231, 76, 60, 0.1);
+    margin: 20px 0;
+}
+
 /* 分類標籤 */
 .category-tabs {
     display: flex;
@@ -380,6 +397,31 @@ hr {
         font-size: 18px;
         padding: 15px;
     }
+    
+    .floating-buttons {
+        bottom: 10px;
+        right: 10px;
+        gap: 10px;
+    }
+    
+    .social-buttons {
+        bottom: 80px;
+    }
+    
+    .floating-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+    
+    /* 封面文字 */
+    .cover-text h2 {
+        font-size: 2.2rem;
+    }
+    
+    .cover-text p {
+        font-size: 1.3rem;
+    }
 }
 
 /* 移動端優化 - 375px寬度屏幕 */
@@ -393,6 +435,24 @@ hr {
     .tab-btn {
         padding: 8px 12px;
         font-size: 13px;
+    }
+    
+    /* 封面文字加大 */
+    .cover-text h2 {
+        font-size: 2.5rem !important;
+        line-height: 1.2;
+        margin-bottom: 15px;
+    }
+    
+    .cover-text p {
+        font-size: 1.4rem !important;
+        line-height: 1.4;
+        margin-bottom: 10px;
+    }
+    
+    /* 增加封面高度 */
+    .cover-container {
+        height: 280px;
     }
 }
 
@@ -445,32 +505,24 @@ footer {
     }
     
     .product-info {
-        padding: 4px;
+        padding: 8px;
     }
     
     .product-name {
-        font-size: 0.8rem;
+        font-size: 1rem;
     }
     
     .product-description {
-        font-size: 0.6rem;
+        font-size: 0.8rem;
     }
     
     .product-price {
-        font-size: 0.7rem;
+        font-size: 0.9rem;
     }
     
     .add-to-cart-btn {
-        padding: 2px 0;
-        font-size: 0.6rem;
-    }
-    
-    h1 {
-        font-size: 1.3rem;
-    }
-    
-    h2 {
-        font-size: 1rem;
+        padding: 8px 0;
+        font-size: 0.9rem;
     }
 }
 

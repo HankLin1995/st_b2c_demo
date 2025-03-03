@@ -5,6 +5,9 @@ let checkoutTotalElement;
 let toastElement;
 let checkoutForm;
 
+// 导入API函数
+import { submitOrder } from './api.js';
+
 // 頁面載入時執行
 document.addEventListener('DOMContentLoaded', function() {
     // 獲取DOM元素
@@ -157,20 +160,23 @@ function handleCheckout(event) {
         orderDate: new Date().toISOString()
     };
     
-    // 在實際應用中，這裡會發送訂單數據到服務器
-    // 這裡我們只是模擬成功提交
-    console.log('訂單數據:', orderData);
-    
-    // 清空購物車
-    localStorage.removeItem('cart');
-    
-    // 顯示成功消息
-    showToast('訂單已成功提交！我們將盡快處理您的訂單');
-    
-    // 延遲後重定向到首頁
-    setTimeout(() => {
-        window.location.href = 'index.html';
-    }, 3000);
+    // 使用新的API接口提交訂單
+    submitOrder(orderData).then(() => {
+        console.log('訂單提交成功');
+        
+        // 清空購物車
+        localStorage.removeItem('cart');
+        
+        // 顯示成功消息
+        showToast('訂單已成功提交！我們將盡快處理您的訂單');
+        
+        // 延遲後重定向到首頁
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 3000);
+    }).catch((error) => {
+        console.error('訂單提交失敗', error);
+    });
 }
 
 // 顯示提示消息
