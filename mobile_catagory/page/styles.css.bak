@@ -1,0 +1,237 @@
+/* 移動端優化 */
+@media (max-width: 375px) {
+    body {
+        font-size: 16px;
+        padding: 0 8px; /* 减小页面边距，提供更多空间 */
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    /* 產品網格佈局 */
+    #product-container {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* 增大最小宽度 */
+        gap: 12px; /* 减小间距 */
+    }
+    
+    /* 產品卡片樣式 */
+    .product-image {
+        height: 160px; /* 增大图片高度 */
+    }
+    
+    .product-name {
+        font-size: 20px;
+    }
+    
+    .product-description {
+        font-size: 16px;
+        min-height: 32px;
+    }
+    
+    .product-price {
+        font-size: 1.2rem;
+    }
+    
+    .product-original-price {
+        font-size: 0.9rem;
+    }
+    
+    .product-sale-tag {
+        font-size: 0.9rem;
+        padding: 4px 8px;
+    }
+    
+    /* 按鈕樣式 */
+    .add-to-cart-btn {
+        font-size: 18px;
+        padding: 12px 15px;
+    }
+    
+    /* 分類標籤 */
+    .category-tabs {
+        padding: 5px 0;
+        margin: 0 -10px 15px -10px;
+        width: calc(100% + 20px);
+    }
+    
+    .tab-btn {
+        font-size: 18px;
+        padding: 10px 18px;
+    }
+    
+    /* 購物車樣式 */
+    .cart-item-name {
+        font-size: 1.1rem;
+    }
+    
+    .cart-item-price {
+        font-size: 1rem;
+    }
+    
+    .cart-item-original-price {
+        font-size: 0.9rem;
+    }
+    
+    .delete-btn {
+        font-size: 1rem;
+        padding: 8px 12px;
+    }
+    
+    .cart-total {
+        font-size: 1.3rem;
+    }
+    
+    .clear-cart-btn {
+        font-size: 1.1rem;
+        padding: 12px;
+    }
+    
+    /* 吐司通知 */
+    .toast {
+        font-size: 18px;
+        padding: 15px;
+        min-width: 280px;
+    }
+    
+    .info-message {
+        font-size: 18px;
+        padding: 15px;
+    }
+    
+    .floating-buttons {
+        bottom: 10px;
+        right: 10px;
+        gap: 10px;
+    }
+    
+    .social-buttons {
+        bottom: 80px;
+    }
+    
+    .floating-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+    
+    .category-filter {
+        margin-bottom: 15px;
+    }
+    
+    .category-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    .checkout-section {
+        padding: 15px;
+    }
+    
+    .checkout-container {
+        gap: 15px;
+    }
+    
+    .order-summary {
+        padding: 10px;
+    }
+    
+    .checkout-item {
+        padding: 10px 0;
+    }
+    
+    .checkout-item-name {
+        font-size: 1rem;
+    }
+    
+    .checkout-item-price {
+        font-size: 0.9rem;
+    }
+    
+    .quantity-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+    }
+    
+    .remove-item-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+    }
+    
+    .order-total {
+        font-size: 1.1rem;
+    }
+    
+    .checkout-form {
+        padding: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 10px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 8px;
+        font-size: 14px;
+    }
+    
+    .submit-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .back-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .cover-container {
+        height: 250px;
+    }
+    
+    .cover-text h2 {
+        font-size: 1.8rem;
+    }
+    
+    .cover-text p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .floating-buttons {
+        bottom: 8px;
+        right: 8px;
+        gap: 8px;
+    }
+    
+    .social-buttons {
+        bottom: 75px;
+    }
+    
+    .floating-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .cover-container {
+        height: 200px;
+    }
+    
+    .cover-text h2 {
+        font-size: 1.5rem;
+    }
+    
+    .cover-text p {
+        font-size: 0.9rem;
+    }
+}

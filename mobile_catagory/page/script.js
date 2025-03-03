@@ -4,6 +4,8 @@ const products = [
         "id": 1,
         "name": "紐西蘭牛排",
         "price": 499,
+        "originalPrice": 599,
+        "onSale": true,
         "image": "https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
         "description": "紐西蘭頂級草飼牛排",
         "category": "meat"
@@ -60,7 +62,9 @@ const products = [
         "id": 8,
         "name": "生蠔",
         "price": 499,
-        "image": "https://images.unsplash.com/photo-1614377284368-a6d4f911edc7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "originalPrice": 599,
+        "onSale": true,
+        "image": "https://images.unsplash.com/photo-1498579687545-d5a4fffb0a9e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
         "description": "新鮮生蠔，海洋的滋味",
         "category": "shellfish"
     },
@@ -68,7 +72,7 @@ const products = [
         "id": 9,
         "name": "扇貝",
         "price": 459,
-        "image": "https://images.unsplash.com/photo-1565280654386-36c3c0e9a7ee?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "image": "https://images.unsplash.com/photo-1569494315581-13efc7e67d1e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
         "description": "北海道扇貝，肉質飽滿",
         "category": "shellfish"
     },
@@ -76,9 +80,91 @@ const products = [
         "id": 10,
         "name": "白蝦",
         "price": 359,
-        "image": "https://images.unsplash.com/photo-1565280654386-36c3c0e9a7ee?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "image": "https://images.unsplash.com/photo-1559737558-2f5a35f4523b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
         "description": "台灣白蝦，鮮甜可口",
         "category": "shrimp"
+    },
+    {
+        "id": 11,
+        "name": "龍蝦",
+        "price": 1299,
+        "originalPrice": 1499,
+        "onSale": true,
+        "image": "https://images.unsplash.com/photo-1550747545-c896b5f89ff7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "description": "波士頓龍蝦，肉質鮮美",
+        "category": "shrimp"
+    },
+    {
+        "id": 12,
+        "name": "帝王蟹",
+        "price": 1599,
+        "image": "https://images.unsplash.com/photo-1559737706-1f3b1d657d3c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "description": "阿拉斯加帝王蟹，鮮甜多汁",
+        "category": "shellfish"
+    },
+    {
+        "id": 13,
+        "name": "鮪魚排",
+        "price": 399,
+        "image": "https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "description": "新鮮鮪魚排，適合煎烤",
+        "category": "fish"
+    },
+    {
+        "id": 14,
+        "name": "鱸魚",
+        "price": 289,
+        "image": "https://images.unsplash.com/photo-1534177616072-ef7dc120449d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "description": "台灣鱸魚，肉質細嫩",
+        "category": "fish"
+    },
+    {
+        "id": 15,
+        "name": "草蝦",
+        "price": 429,
+        "image": "https://images.unsplash.com/photo-1565280654386-36c3c0e9a7ee?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "description": "台灣草蝦，個頭大肉質鮮",
+        "category": "shrimp"
+    },
+    {
+        "id": 16,
+        "name": "澳洲和牛",
+        "price": 899,
+        "image": "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "description": "澳洲和牛，油花分佈均勻",
+        "category": "meat"
+    },
+    {
+        "id": 17,
+        "name": "小卷",
+        "price": 279,
+        "image": "https://images.unsplash.com/photo-1565980928367-a794bbd94784?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "description": "新鮮小卷，Q彈有嚼勁",
+        "category": "fish"
+    },
+    {
+        "id": 18,
+        "name": "蛤蜊",
+        "price": 199,
+        "image": "https://images.unsplash.com/photo-1466553556096-7e2c4ca157cc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "description": "台灣蛤蜊，肉質飽滿",
+        "category": "shellfish"
+    },
+    {
+        "id": 19,
+        "name": "羊排",
+        "price": 599,
+        "image": "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "description": "紐西蘭羊排，肉質鮮嫩",
+        "category": "meat"
+    },
+    {
+        "id": 20,
+        "name": "鱈場蟹",
+        "price": 1099,
+        "image": "https://images.unsplash.com/photo-1560717845-968823efbee1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "description": "阿拉斯加鱈場蟹，肉質鮮美",
+        "category": "shellfish"
     }
 ];
 
@@ -178,12 +264,14 @@ function renderProducts() {
         productCard.className = 'product-card';
         
         productCard.innerHTML = `
-            <img src="${product.image}" alt="${product.name}" class="product-image" onload="this.style.opacity='1'" onerror="this.src='https://via.placeholder.com/300x150?text=圖片載入失敗'; this.style.opacity='1';">
+            <img src="${product.image}" alt="${product.name}" class="product-image" onload="this.style.opacity='1'" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x150?text=圖片載入失敗'; this.style.opacity='1';">
             <div class="product-info">
-                <h3 class="product-name">📌${product.name}</h3>
+                <h3 class="product-name">${product.name}</h3>
                 <p class="product-description">${product.description}</p>
-                <p class="product-price">NT$ ${product.price}</p>
-                <button class="add-to-cart-btn" data-id="${product.id}">🉑加入購物車</button>
+                <p class="product-price ${product.onSale ? 'sale' : ''}">NT$ ${product.price}</p>
+                ${product.onSale ? `<p class="product-original-price">原價 NT$ ${product.originalPrice}</p>` : ''}
+                ${product.onSale ? `<p class="product-sale-tag">特價</p>` : ''}
+                <button class="add-to-cart-btn" data-id="${product.id}">加入購物車</button>
             </div>
         `;
         
@@ -221,6 +309,8 @@ function addToCart(event) {
             name: product.name,
             price: product.price,
             image: product.image,
+            onSale: product.onSale || false,
+            originalPrice: product.originalPrice,
             quantity: 1
         });
         showToast(`已添加 ${product.name} 到購物車`);
@@ -310,10 +400,11 @@ function updateCartDisplay() {
             cartItemElement.className = 'cart-item';
             
             cartItemElement.innerHTML = `
-                <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/50x50'">
+                <img src="${item.image}" alt="${item.name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/50x50?text=無圖片'">
                 <div class="cart-item-details">
                     <h3>${item.name}</h3>
-                    <p>價格: $${item.price}</p>
+                    <p class="cart-item-price ${item.onSale ? 'sale' : ''}">價格: $${item.price}</p>
+                    ${item.onSale ? `<p class="cart-item-original-price">原價: $${item.originalPrice}</p>` : ''}
                     <div class="quantity-controls">
                         <button class="quantity-btn minus-btn" data-index="${index}">-</button>
                         <span class="quantity">${item.quantity}</span>
