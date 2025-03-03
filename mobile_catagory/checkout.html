@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魚老闆嚴選 - 結帳</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>魚老闆嚴選</h1>
+    </header>
+    
+    <main>
+        <section class="checkout-section">
+            <h2>結帳資訊</h2>
+            
+            <div class="checkout-container">
+                <div class="order-summary">
+                    <h3>訂單摘要</h3>
+                    <div id="checkout-items">
+                        <!-- 訂單項目將由JavaScript動態生成 -->
+                    </div>
+                    <div class="order-total">
+                        <p>總計: <span id="checkout-total">0</span> 元</p>
+                    </div>
+                </div>
+                
+                <form id="checkout-form" class="checkout-form">
+                    <h3>收件資訊</h3>
+                    
+                    <div class="form-group">
+                        <label for="name">姓名</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">電話</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">電子郵件</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">送貨地址</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment">付款方式</label>
+                        <select id="payment" name="payment" required>
+                            <option value="">請選擇付款方式</option>
+                            <option value="credit_card">信用卡</option>
+                            <option value="line_pay">LINE Pay</option>
+                            <option value="cash">貨到付款</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">備註</label>
+                        <textarea id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">確認訂單</button>
+                </form>
+            </div>
+        </section>
+    </main>
+    
+    <div id="toast" class="toast"></div>
+    
+    <!-- 懸浮返回按鈕 -->
+    <div class="floating-buttons back-button">
+        <a href="index.html" class="floating-btn back-btn" aria-label="返回購物">
+            <i class="fas fa-arrow-left"></i>
+            <span class="tooltip">返回購物</span>
+        </a>
+    </div>
+    
+    <script src="checkout.js"></script>
+</body>
+</html>

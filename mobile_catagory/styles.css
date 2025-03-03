@@ -1,0 +1,724 @@
+/* 全局樣式 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f9f9f9;
+    padding: 0 10px;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+header {
+    text-align: center;
+    padding: 10px 0;
+}
+
+h1 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin: 10px 0;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-color: #ddd;
+    margin: 15px 0;
+}
+
+/* 產品網格佈局 */
+#product-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+/* 產品卡片樣式 */
+.product-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 確保卡片高度一致 */
+}
+
+.product-image {
+    width: 100%;
+    height: 150px; /* 固定高度 */
+    border-radius: 8px 8px 0 0;
+    object-fit: cover; /* 確保圖片填滿容器且保持比例 */
+    display: block;
+    opacity: 0; /* 初始透明度為0 */
+    transition: opacity 0.3s ease; /* 添加淡入效果 */
+    background-color: #f0f0f0; /* 圖片加載前的背景色 */
+}
+
+.product-info {
+    padding: 12px;
+    flex-grow: 1; /* 讓內容區域填滿剩餘空間 */
+    display: flex;
+    flex-direction: column;
+}
+
+.product-name {
+    font-size: 16px;
+    margin: 0 0 8px 0;
+    font-weight: bold;
+}
+
+.product-description {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 8px 0;
+    flex-grow: 1; /* 讓描述填滿空間 */
+    min-height: 40px; /* 最小高度確保一致性 */
+}
+
+.product-price {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #e63946;
+    margin: 0 0 4px 0;
+}
+
+/* 按鈕樣式 */
+.add-to-cart-btn {
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #45a049;
+}
+
+.add-to-cart-btn.added {
+    background-color: #2E7D32;
+    transform: scale(1.1);
+}
+
+/* 購物車樣式 */
+.cart-section {
+    margin-top: 15px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    background-color: white;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.cart-item-info {
+    flex-grow: 1;
+}
+
+.cart-item-name {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.cart-item-price {
+    font-size: 0.8rem;
+    color: #e63946;
+    margin: 0;
+}
+
+.delete-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.cart-total {
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: right;
+    margin-top: 10px;
+    padding: 8px;
+    background-color: white;
+    border-radius: 4px;
+}
+
+.clear-cart-btn {
+    width: 100%;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.info-message {
+    padding: 10px;
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    border-radius: 4px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+/* 吐司通知 */
+.toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.toast.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* 分類標籤 */
+.category-tabs {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 20px;
+    padding: 5px 0;
+    border-bottom: 1px solid #e0e0e0;
+    -webkit-overflow-scrolling: touch; /* 提升在iOS上的滑動體驗 */
+    scrollbar-width: none; /* Firefox */
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    margin-right: 5px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.tab-btn:after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #4CAF50;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.tab-btn.active {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.tab-btn.active:after {
+    transform: scaleX(1);
+}
+
+.tab-btn:hover {
+    color: #4CAF50;
+}
+
+/* 隱藏水平滾動條但保留功能 */
+.category-tabs::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+    background: transparent;
+}
+
+/* 移動端優化 */
+@media (max-width: 375px) {
+    .category-tabs {
+        padding: 5px 0;
+        margin: 0 -10px 15px -10px;
+        padding: 0 10px;
+    }
+    
+    .tab-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+/* 分類過濾器 */
+.category-filter {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.category-btn {
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.category-btn.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.category-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.category-btn.active:hover {
+    background-color: #3e8e41;
+}
+
+/* 分頁控制 */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    gap: 15px;
+}
+
+.page-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.page-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.page-btn:hover:not(:disabled) {
+    background-color: #3e8e41;
+}
+
+#page-indicator {
+    font-size: 14px;
+    color: #666;
+}
+
+/* 頁腳 */
+footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px 0;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* 響應式設計 - 確保在小螢幕上保持雙欄 */
+@media (max-width: 375px) {
+    #product-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .product-info {
+        padding: 4px;
+    }
+    
+    .product-name {
+        font-size: 0.8rem;
+    }
+    
+    .product-description {
+        font-size: 0.6rem;
+    }
+    
+    .product-price {
+        font-size: 0.7rem;
+    }
+    
+    .add-to-cart-btn {
+        padding: 2px 0;
+        font-size: 0.6rem;
+    }
+    
+    h1 {
+        font-size: 1.3rem;
+    }
+    
+    h2 {
+        font-size: 1rem;
+    }
+}
+
+/* 懸浮社群媒體按鈕 */
+.floating-buttons {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 1000;
+}
+
+.social-buttons {
+    bottom: 100px;
+}
+
+.checkout-button {
+    bottom: 20px;
+}
+
+.floating-btn {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+    font-size: 24px;
+    position: relative;
+}
+
+.checkout-btn {
+    background-color: #FF5722;
+}
+
+.cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #FF0000;
+    color: white;
+    font-size: 12px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+/* 隱藏購物車數量為0時的計數器 */
+.cart-count:empty,
+.cart-count[data-count="0"] {
+    display: none;
+}
+
+.floating-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.floating-btn:active {
+    transform: scale(0.95);
+}
+
+.line-btn {
+    background-color: #06C755;
+}
+
+.fb-btn {
+    background-color: #1877F2;
+}
+
+.wa-btn {
+    background-color: #25D366;
+}
+
+/* 工具提示 */
+.tooltip {
+    position: absolute;
+    right: 65px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    transform: translateX(10px);
+}
+
+.tooltip:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -6px;
+    transform: translateY(-50%);
+    border-width: 6px 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent rgba(0, 0, 0, 0.8);
+}
+
+.floating-btn:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* 移動端優化 - 懸浮按鈕 */
+@media (max-width: 768px) {
+    .floating-buttons {
+        bottom: 15px;
+        right: 15px;
+        gap: 12px;
+    }
+    
+    .floating-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 375px) {
+    .floating-buttons {
+        bottom: 10px;
+        right: 10px;
+        gap: 10px;
+    }
+    
+    .floating-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+}
+
+/* 結帳頁面樣式 */
+.checkout-section {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.checkout-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.order-summary {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.order-summary h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.checkout-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+.checkout-item-details {
+    flex: 1;
+}
+
+.checkout-item-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.checkout-item-price {
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.checkout-quantity-controls {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.quantity-btn {
+    width: 25px;
+    height: 25px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.quantity-btn:hover {
+    background-color: #eee;
+}
+
+.quantity {
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+.checkout-item-total {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.remove-item-btn {
+    background-color: #ff5252;
+    color: white;
+    border: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s;
+}
+
+.remove-item-btn:hover {
+    background-color: #ff1744;
+    transform: scale(1.1);
+}
+
+.order-total {
+    font-weight: bold;
+    text-align: right;
+    margin-top: 15px;
+    font-size: 1.2em;
+}
+
+.checkout-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-form h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+.back-btn {
+    background-color: #607D8B;
+}
+
+/* 移動端優化 - 結帳頁面 */
+@media (max-width: 768px) {
+    .checkout-container {
+        flex-direction: column;
+    }
+    
+    .checkout-form,
+    .order-summary {
+        width: 100%;
+    }
+}

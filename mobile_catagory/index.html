@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魚老闆嚴選</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>魚老闆嚴選</h1>
+    </header>
+    
+    <main>
+        <!-- 分類選擇 -->
+        <div class="category-tabs">
+            <button class="tab-btn active" data-category="all">全部商品</button>
+            <button class="tab-btn" data-category="fish">魚類</button>
+            <button class="tab-btn" data-category="shrimp">蝦類</button>
+            <button class="tab-btn" data-category="shellfish">貝類</button>
+            <button class="tab-btn" data-category="meat">肉類</button>
+        </div>
+        
+        <!-- 產品網格 -->
+        <div id="product-container">
+            <!-- 產品卡片將由JavaScript動態生成 -->
+        </div>
+        
+        <!-- 分頁控制 -->
+        <div class="pagination-controls">
+            <button id="prev-page" class="page-btn">上一頁</button>
+            <span id="page-indicator">第 <span id="current-page">1</span> 頁，共 <span id="total-pages">1</span> 頁</span>
+            <button id="next-page" class="page-btn">下一頁</button>
+        </div>
+        
+        <hr>
+        
+        <!-- 購物車 -->
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 魚老闆嚴選. All rights reserved.</p>
+    </footer>
+
+    <div id="toast" class="toast"></div>
+    
+    <!-- 懸浮社群媒體按鈕 -->
+    <div class="floating-buttons social-buttons">
+        <a href="https://line.me/ti/p/YOUR_LINE_ID" target="_blank" class="floating-btn line-btn" aria-label="LINE官方帳號">
+            <i class="fab fa-line"></i>
+            <span class="tooltip">LINE官方</span>
+        </a>
+        <a href="https://www.facebook.com/YOUR_FACEBOOK_PAGE" target="_blank" class="floating-btn fb-btn" aria-label="Facebook粉絲專頁">
+            <i class="fab fa-facebook-f"></i>
+            <span class="tooltip">Facebook</span>
+        </a>
+        <!-- <a href="https://wa.me/YOUR_PHONE_NUMBER" target="_blank" class="floating-btn wa-btn" aria-label="WhatsApp聯絡">
+            <i class="fab fa-whatsapp"></i>
+            <span class="tooltip">WhatsApp</span>
+        </a> -->
+    </div>
+    
+    <!-- 懸浮結帳按鈕 -->
+    <div class="floating-buttons checkout-button">
+        <a href="checkout.html" class="floating-btn checkout-btn" id="checkout-btn" aria-label="前往結帳">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="tooltip">前往結帳</span>
+            <span class="cart-count" id="floating-cart-count">0</span>
+        </a>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
